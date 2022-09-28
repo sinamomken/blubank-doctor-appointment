@@ -1,12 +1,14 @@
 package com.blubank.doctorappointment.model.entity;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Data
+@Accessors(chain = true)
 @Entity
 @Table(name = "tbl_appointment")
 public class Appointment {
