@@ -41,10 +41,6 @@ class DoctorAppointmentApplicationTests {
 	}
 
 	@Test
-	void contextLoads() {
-	}
-
-	@Test
 	public void givenStartAndEnd_thenGetRightAppointments() throws Exception {
 		mvc.perform(post("/api/appointment/add")
 				.content(asJsonString(new AppointmentsAddRequestDto()
@@ -76,6 +72,20 @@ class DoctorAppointmentApplicationTests {
 				.andDo(print())
 				.andExpect(status().is4xxClientError())
 				.andExpect(jsonPath("$.errorCode", is("101001")));
+	}
+
+	@Test
+	public void givenShortStartAndEnd_thenGetEmptyList() throws Exception {
+		mvc.perform(post("/api/appointment/add")
+				.content(asJsonString(new AppointmentsAddRequestDto()
+						.setDate(LocalDate.now())
+						.setStartTime(LocalTime.of(16,40))
+						.setEndTime(LocalTime.of(17,00))
+				)).contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(0)));
 	}
 
 	private static String asJsonString(final Object obj) {
