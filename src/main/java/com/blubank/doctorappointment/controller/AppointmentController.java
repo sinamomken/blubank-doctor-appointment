@@ -5,10 +5,7 @@ import com.blubank.doctorappointment.service.AppointmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -22,6 +19,12 @@ public class AppointmentController {
     @PostMapping("/add")
     public ResponseEntity<?> addAppointments(@RequestBody @Valid AppointmentsAddRequestDto requestDto){
         var response = appointmentService.addStartAndEnd(requestDto);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/view-all")
+    public ResponseEntity<?> viewAllAppointments(){
+        var response = appointmentService.getAll();
         return ResponseEntity.ok(response);
     }
 }

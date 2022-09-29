@@ -51,8 +51,16 @@ public class AppointmentService {
         }
         log.info("Saving {} appointments into database.", appointmentList.size());
         appointmentRepository.saveAll(appointmentList);
-        log.debug("End of addStartAndEnd() ...");
+        log.debug("End of addStartAndEnd().");
 
         return appointmentList;
+    }
+
+    public List<Appointment> getAll(){
+        log.debug("Start of getAll() ...");
+        List<Appointment> result = appointmentRepository.findAll();
+        log.info("Found {} total appointments", result.size());
+        log.debug("End of getAll().");
+        return result;
     }
 }
