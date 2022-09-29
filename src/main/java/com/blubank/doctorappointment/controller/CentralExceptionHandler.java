@@ -25,7 +25,7 @@ public class CentralExceptionHandler {
         ErrorDto errorDto = new ErrorDto();
         errorDto.setErrorCode(bluException.getErrorCode());
         errorDto.setErrorDesc(messageSource.getMessage("error.code."+bluException.getErrorCode()+".message",null, defaultErrorMessage, Locale.ENGLISH));
-        log.error("Blu exception "+errorDto.getErrorCode()+" occurred: "+errorDto.getErrorDesc());
+        log.error("Blu exception "+errorDto.getErrorCode()+": "+errorDto.getErrorDesc());
         HttpStatus httpStatus = HttpStatus.valueOf(Integer.valueOf(messageSource.getMessage("error.code."+bluException.getErrorCode()+".status",null, defaultErrorStatus, Locale.ENGLISH)));
         return new ResponseEntity<>(errorDto, httpStatus);
     }

@@ -6,10 +6,10 @@ import com.blubank.doctorappointment.model.exception.BluException;
 import com.blubank.doctorappointment.repository.AppointmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.jni.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,12 +21,13 @@ import java.util.List;
 public class AppointmentService {
     private static final long DURATION = 30;
 
+    private final Object deleteOrUpdateLock = new Object();
+
     private final AppointmentRepository appointmentRepository;
 
     public List<Appointment> addStartAndEnd(AppointmentsAddRequestDto requestDto){
         log.debug("Start of addStartAndEnd() ...");
         if(requestDto.getEndTime().isBefore(requestDto.getStartTime())){
-            log.error("startTime is before endTime!");
             throw new BluException("101001");
         }
 
@@ -68,5 +69,31 @@ public class AppointmentService {
         log.debug("Start of resetAll() ...");
         appointmentRepository.deleteAll();
         log.debug("End of resetAll().");
+    }
+
+    public void delete(Long id){
+        log.debug("Start of delete() ...");
+        if(!appointmentRepository.existsById(id)){
+            throw new BluException("101002");
+        }
+        //noinspection OptionalGetWithoutIsPresent
+        Appointment appointment = appointmentRepository.findById(id).get();
+        if(appointment.getIsTaken()) {
+            throw new BluException("101003");
+        }
+
+        synchronized (deleteOrUpdateLock){
+            log.info("Deleting appointment with id="+id);
+            appointmentRepository.deleteById(id);
+        }
+        log.debug("End of delete().");
+    }
+
+    public List<Appointment> getOpens(LocalDate date){
+        log.debug("Start of getOpens() ...");
+        var result = appointmentRepository.findAllByDateAndIsTaken(date, false);
+        log.info("Found {} open appointments for day {}", result.size(), date);
+        log.debug("End of getOpens().");
+        return result;
     }
 }
