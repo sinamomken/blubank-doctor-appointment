@@ -22,7 +22,6 @@ public class CentralExceptionHandler {
 
     @ExceptionHandler(BluException.class)
     public ResponseEntity<?> handleError(BluException bluException){
-        log.error("Greeting is {}", messageSource.getMessage("greeting", null, Locale.ENGLISH));
         ErrorDto errorDto = new ErrorDto();
         errorDto.setErrorCode(bluException.getErrorCode());
         errorDto.setErrorDesc(messageSource.getMessage("error.code."+bluException.getErrorCode()+".message",null, defaultErrorMessage, Locale.ENGLISH));
