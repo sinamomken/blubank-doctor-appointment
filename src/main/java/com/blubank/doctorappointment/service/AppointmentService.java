@@ -2,6 +2,7 @@ package com.blubank.doctorappointment.service;
 
 import com.blubank.doctorappointment.model.dto.AppointmentsAddRequestDto;
 import com.blubank.doctorappointment.model.entity.Appointment;
+import com.blubank.doctorappointment.model.exception.BluException;
 import com.blubank.doctorappointment.repository.AppointmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,11 +26,11 @@ public class AppointmentService {
     public List<Appointment> addStartAndEnd(AppointmentsAddRequestDto requestDto){
         log.debug("Start of addStartAndEnd() ...");
         if(requestDto.getEndTime().isBefore(requestDto.getStartTime())){
-            //log
-            throw new IllegalArgumentException("End time must not be before start time.");
+            log.error("startTime is before endTime!");
+            throw new BluException("101001");
         }
 
-        //log.
+        log.info("Deleting all existing appointments by date {}", requestDto.getDate());
         appointmentRepository.deleteAllByDate(requestDto.getDate());
 
         List<Appointment> appointmentList = new ArrayList<>();
@@ -48,8 +49,9 @@ public class AppointmentService {
             appointmentStart = appointmentEnd;
             appointmentEnd = appointmentStart.plusMinutes(DURATION);
         }
+        log.info("Saving {} appointments into database.", appointmentList.size());
         appointmentRepository.saveAll(appointmentList);
-        //log.
+        log.debug("End of addStartAndEnd() ...");
 
         return appointmentList;
     }
