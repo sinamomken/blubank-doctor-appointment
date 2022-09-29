@@ -20,7 +20,7 @@ import java.time.LocalTime;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -82,6 +82,45 @@ class DoctorAppointmentApplicationTests {
 						.setStartTime(LocalTime.of(16,40))
 						.setEndTime(LocalTime.of(17,00))
 				)).contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(0)));
+	}
+
+	@Test
+	public void givenStartAndEnd_thenViewAllAppointments() throws Exception {
+		mvc.perform(post("/api/appointment/add")
+				.content(asJsonString(new AppointmentsAddRequestDto()
+						.setDate(LocalDate.now())
+						.setStartTime(LocalTime.of(16,00))
+						.setEndTime(LocalTime.of(17,00))
+				)).contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON))
+				.andDo(print());
+		mvc.perform(get("/api/appointment/view-all")
+				.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(2)))
+				.andExpect(jsonPath("$[0].startTime", is("16:00:00")))
+				.andExpect(jsonPath("$[0].endTime", is("16:30:00")))
+				.andExpect(jsonPath("$[0].date", is(LocalDate.now().toString())))
+				.andExpect(jsonPath("$[1].startTime", is("16:30:00")))
+				.andExpect(jsonPath("$[1].endTime", is("17:00:00")))
+				.andExpect(jsonPath("$[1].date", is(LocalDate.now().toString())));
+	}
+
+	@Test
+	public void givenReset_thenViewEmptyList() throws Exception {
+		mvc.perform(delete("/api/appointment/reset")
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON))
+				.andDo(print())
+				.andExpect(status().isNoContent());
+		mvc.perform(get("/api/appointment/view-all")
+				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON))
 				.andDo(print())
 				.andExpect(status().isOk())

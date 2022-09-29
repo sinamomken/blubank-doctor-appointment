@@ -27,4 +27,10 @@ public class AppointmentController {
         var response = appointmentService.getAll();
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/reset")
+    public ResponseEntity<?> resetAllAppointments(){
+        appointmentService.resetAll();
+        return ResponseEntity.noContent().build();
+    }
 }

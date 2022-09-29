@@ -63,4 +63,10 @@ public class AppointmentService {
         log.debug("End of getAll().");
         return result;
     }
+
+    public void resetAll(){
+        log.debug("Start of resetAll() ...");
+        appointmentRepository.deleteAll();
+        log.debug("End of resetAll().");
+    }
 }
