@@ -56,7 +56,7 @@ public class AppointmentController {
 
     @PostMapping("/take")
     public ResponseEntity<?> takeAnAppointment(@RequestBody @Valid AppointmentTakeRequestDto requestDto){
-        var response = new Appointment();
+        var response = appointmentService.take(requestDto);
         return ResponseEntity.ok(response);
     }
 }

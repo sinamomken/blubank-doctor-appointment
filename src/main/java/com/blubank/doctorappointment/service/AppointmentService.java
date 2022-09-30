@@ -1,5 +1,6 @@
 package com.blubank.doctorappointment.service;
 
+import com.blubank.doctorappointment.model.dto.AppointmentTakeRequestDto;
 import com.blubank.doctorappointment.model.dto.AppointmentsAddRequestDto;
 import com.blubank.doctorappointment.model.entity.Appointment;
 import com.blubank.doctorappointment.model.exception.BluException;
@@ -95,5 +96,27 @@ public class AppointmentService {
         log.info("Found {} open appointments for day {}", result.size(), date);
         log.debug("End of getOpens().");
         return result;
+    }
+
+    public Appointment take(AppointmentTakeRequestDto requestDto) {
+        log.debug("Start of take() ...");
+        if(!appointmentRepository.existsById(requestDto.getId())){
+            throw new BluException("101007");
+        }
+        //noinspection OptionalGetWithoutIsPresent
+        Appointment appointment = appointmentRepository.findById(requestDto.getId()).get();
+        if(appointment.getIsTaken()) {
+            throw new BluException("101007");
+        }
+
+        synchronized (deleteOrUpdateLock){
+            log.info("Taking appointment with id {} for patient {}", requestDto.getId(), requestDto.getPatientName());
+            appointment.setPatientName(requestDto.getPatientName());
+            appointment.setPatientPhone(requestDto.getPatientPhone());
+            appointment.setIsTaken(true);
+            appointment = appointmentRepository.save(appointment);
+        }
+        log.debug("End of take().");
+        return appointment;
     }
 }
