@@ -1,6 +1,8 @@
 package com.blubank.doctorappointment.controller;
 
+import com.blubank.doctorappointment.model.dto.AppointmentTakeRequestDto;
 import com.blubank.doctorappointment.model.dto.AppointmentsAddRequestDto;
+import com.blubank.doctorappointment.model.entity.Appointment;
 import com.blubank.doctorappointment.service.AppointmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -49,6 +51,12 @@ public class AppointmentController {
                                                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
                                                               LocalDate date) {
         var response = appointmentService.getOpens(date);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/take")
+    public ResponseEntity<?> takeAnAppointment(@RequestBody @Valid AppointmentTakeRequestDto requestDto){
+        var response = new Appointment();
         return ResponseEntity.ok(response);
     }
 }
