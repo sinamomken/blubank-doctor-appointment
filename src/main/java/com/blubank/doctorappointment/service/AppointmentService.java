@@ -119,4 +119,12 @@ public class AppointmentService {
         log.debug("End of take().");
         return appointment;
     }
+
+    public List<Appointment> getMyOwns(String patientPhone){
+        log.debug("Start of getMyOwns() ...");
+        var result = appointmentRepository.findAllByPatientPhone(patientPhone);
+        log.info("Found {} appointments for patient phone number {}", result.size(), patientPhone);
+        log.debug("End of getMyOwns().");
+        return result;
+    }
 }

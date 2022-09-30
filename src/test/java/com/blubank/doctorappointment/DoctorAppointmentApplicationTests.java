@@ -443,6 +443,86 @@ class DoctorAppointmentApplicationTests {
 				.andExpect(jsonPath("$.errorCode", is("101007")));
 	}
 
+	@Test
+	public void givenStartAndEnd_thenViewEmptyListForMyPhone() throws Exception {
+		mvc.perform(post("/api/appointment/add")
+				.content(asJsonString(new AppointmentsAddRequestDto()
+						.setDate(LocalDate.now())
+						.setStartTime(LocalTime.of(16,00))
+						.setEndTime(LocalTime.of(17,00))
+				)).contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON))
+				.andDo(print());
+
+		mvc.perform(get("/api/appointment/view-own/{phoneNumber}", "09124574396")
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(0)));
+	}
+
+	@Test
+	public void givenStartAndEnd_thenTake2Appointments_thenView2AppointmentsForMyPhone() throws Exception {
+		ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
+		String contentStr = mvc.perform(post("/api/appointment/add")
+				.content(asJsonString(new AppointmentsAddRequestDto()
+						.setDate(LocalDate.now())
+						.setStartTime(LocalTime.of(16, 00))
+						.setEndTime(LocalTime.of(17, 00))
+				)).contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString();
+		List<Appointment> appointmentList = objectMapper.readValue(contentStr, new TypeReference<List<Appointment>>(){});
+
+		mvc.perform(post("/api/appointment/take")
+				.content(asJsonString(new AppointmentTakeRequestDto()
+						.setId(appointmentList.get(0).getId())
+						.setPatientName("Sina Momken")
+						.setPatientPhone("09124574396")
+				)).contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.isTaken", is(true)))
+				.andExpect(jsonPath("$.patientName", is("Sina Momken")))
+				.andExpect(jsonPath("$.patientPhone", is("09124574396")));
+
+		mvc.perform(post("/api/appointment/take")
+				.content(asJsonString(new AppointmentTakeRequestDto()
+						.setId(appointmentList.get(1).getId())
+						.setPatientName("Sina Momken")
+						.setPatientPhone("09124574396")
+				)).contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.isTaken", is(true)))
+				.andExpect(jsonPath("$.patientName", is("Sina Momken")))
+				.andExpect(jsonPath("$.patientPhone", is("09124574396")));
+
+		mvc.perform(get("/api/appointment/view-own/{phoneNumber}", "09124574396")
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(2)))
+				.andExpect(jsonPath("$[0].isTaken", is(true)))
+				.andExpect(jsonPath("$[0].patientName", is("Sina Momken")))
+				.andExpect(jsonPath("$[0].patientPhone", is("09124574396")))
+				.andExpect(jsonPath("$[0].startTime", is("16:00:00")))
+				.andExpect(jsonPath("$[0].endTime", is("16:30:00")))
+				.andExpect(jsonPath("$[0].date", is(LocalDate.now().toString())))
+				.andExpect(jsonPath("$[1].isTaken", is(true)))
+				.andExpect(jsonPath("$[1].patientName", is("Sina Momken")))
+				.andExpect(jsonPath("$[1].patientPhone", is("09124574396")))
+				.andExpect(jsonPath("$[1].startTime", is("16:30:00")))
+				.andExpect(jsonPath("$[1].endTime", is("17:00:00")))
+				.andExpect(jsonPath("$[1].date", is(LocalDate.now().toString())));
+	}
+
 	//### region private
 	private static String asJsonString(final Object obj) {
 		try {

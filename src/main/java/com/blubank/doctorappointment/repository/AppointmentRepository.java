@@ -11,4 +11,5 @@ import java.util.List;
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
     void deleteAllByDate(LocalDate date);
     List<Appointment> findAllByDateAndIsTaken(LocalDate date, Boolean isTaken);
+    List<Appointment> findAllByPatientPhone(String patientPhone);
 }

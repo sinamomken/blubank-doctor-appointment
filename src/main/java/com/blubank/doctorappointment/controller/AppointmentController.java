@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -41,7 +42,7 @@ public class AppointmentController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteAnAppointment(@PathVariable("id") @NotNull Long id){
+    public ResponseEntity<?> deleteAnAppointment(@PathVariable("id") @NotNull(message = "101004") Long id){
         appointmentService.delete(id);
         return ResponseEntity.noContent().build();
     }
@@ -57,6 +58,12 @@ public class AppointmentController {
     @PostMapping("/take")
     public ResponseEntity<?> takeAnAppointment(@RequestBody @Valid AppointmentTakeRequestDto requestDto){
         var response = appointmentService.take(requestDto);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/view-own/{phoneNumber}")
+    public ResponseEntity<?> viewMyOwnAppointments(@PathVariable("phoneNumber") @Pattern(regexp = "\\d{11}", message = "101006") String phoneNumber){
+        var response = appointmentService.getMyOwns(phoneNumber);
         return ResponseEntity.ok(response);
     }
 }
